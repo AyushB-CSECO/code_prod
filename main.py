@@ -42,3 +42,28 @@ roc_auc = roc_auc_score(y_test, y_pred)
 
 print(f"Precision: {precision}")
 print(f"Recall: {recall}")
+
+
+# MLFlow Code
+mlflow.set_experiment("Churn Prediction Experiment (CPE)")
+with mlflow.start_run() as run:
+    # Log the Hyperparameters
+    mlflow.log_params(params)
+    # Log Experiment Metrics
+    mlflow.log_metric("precision", precision)
+    mlflow.log_metric("recall", recall)
+
+    # Set a tag that we can use to remind ourselves what this run is for
+    mlflow.set_tag("Traing Info", "Base Case Model for Customer Churn Prediction")
+
+    #Infer the model signature
+    signature = infer_signature(X_train, lg_reg.predict(X_train))
+
+    # Log the model
+    model_info = mlflow.sklearn.log_model(
+        sk_model = lg_reg,
+        artifact_path = "CPE_V1",
+        signature = signature,
+        input_example = X_train,
+        registered_model_name = "CPE_V1_Model"
+    )
